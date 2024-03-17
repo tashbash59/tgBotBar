@@ -1,4 +1,5 @@
 //import Handlers.*;
+import Handlers.getPostDescriptionHandler;
 import Handlers.*;
 import com.sun.net.httpserver.HttpServer;
 
@@ -16,8 +17,11 @@ public class Server {
             httpServer.createContext("/coctails/getCoctails", new GetCoctailsHandler());
             httpServer.createContext("/coctails/getRecipe", new GetRecipeHandler());
             httpServer.createContext("/coctails/getHistory", new GetHistoryHandler());
+            httpServer.createContext("/coctails/postCoctail", new postCoctailHandler());
             httpServer.createContext("/user/postUser", new postUserHandler());
             httpServer.createContext("/user/getUser", new getUserHandler());
+            httpServer.createContext("/description/postDescription", new getPostDescriptionHandler());
+            httpServer.createContext("/coctails/deleteCoctail", new deleteCoctailHandler());
             httpServer.start();
         } catch (IOException e) {
             throw new RuntimeException(e);

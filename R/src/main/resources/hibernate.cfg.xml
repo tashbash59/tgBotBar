@@ -12,7 +12,7 @@
         <property name="hibernate.format_sql">true</property>
 
         <mapping class="Entity.Coctails"/>
-        <mapping class="Entity.Description"/>
         <mapping class="Entity.Users"/>
+        <mapping class="Entity.Description"/>
     </session-factory>
 </hibernate-configuration>

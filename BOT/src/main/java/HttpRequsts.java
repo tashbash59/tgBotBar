@@ -43,7 +43,42 @@ public class HttpRequsts {
         return response.toString();
     }
 
-    public void doPostRequest(String path, String body) {
+    public String doDeleteRequset(String path) {
+        StringBuffer response = new StringBuffer();
+        try {
+            String requestUrl = URL+path;
+
+            java.net.URL url = new URL(requestUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            // Устанавливаем метод запроса (GET, POST и т.д.)
+            connection.setRequestMethod("DELETE");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            // Включаем возможность отправки данных в тело запроса
+            connection.setDoOutput(false);
+
+
+            // Получаем ответ от сервера
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            System.out.println(response);
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response.toString();
+    }
+
+    public Integer doPostRequest(String path, String body) {
+        Integer response = -1;
         try {
 
             String requestUrl = URL+path;
@@ -64,11 +99,14 @@ public class HttpRequsts {
             }
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
             String inputLine;
+            in.close();
+            response = connection.getResponseCode();
 
             connection.disconnect();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return response;
     }
 }

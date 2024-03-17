@@ -25,8 +25,13 @@ public class TgBot extends TelegramLongPollingBot {
 
     HttpRequsts req = new HttpRequsts();
     boolean is_selected = false;
+    boolean is_delete = false;
+    Integer is_newCoctail = 0;
     private static boolean isAdmin = false;
     String coctail_now = "";
+    String recipe = "";
+    String history = "";
+    Integer id;
     private static final String adminName = "Tashbash59";
 
     @Override
@@ -36,6 +41,10 @@ public class TgBot extends TelegramLongPollingBot {
 //        setUser(username);
         isAdmin = username.equals(adminName);
         Message message = update.getMessage();
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.enableMarkdown(true);
+        sendMessage.setChatId(message.getChatId().toString());
+        sendMessage.setReplyToMessageId(message.getMessageId());
         //Tashbash59
         // получаем записи у пользователя и вставляем их в массивы
 
@@ -53,9 +62,42 @@ public class TgBot extends TelegramLongPollingBot {
                 case "Посмотреть рецепт":
                     BackToMenu(message, "Посмотреть рецепт",isAdmin);
                     break;
+                case "Добавить коктейль":
+                    BackToMenu(message, "Добавить коктейль",isAdmin);
+                    break;
+                case "Удалить коктейль":
+                    BackToMenu(message, "Удалить коктейль",isAdmin);
+                    break;
                 default:
                     if (is_selected) {
                         BackToMenu(message, "",isAdmin);
+                    } else if (is_newCoctail == 1) {
+                        recipe = message.getText();
+                        is_newCoctail = 2;
+                        BackToMenu(message, "",isAdmin);
+                    } else if (is_newCoctail == 3) {
+                        history = message.getText();
+                        is_newCoctail = 4;
+                        String json = "{\"rec\":\"" + recipe + "\",\"history\":\"" + history + "\"}";
+                        id = req.doPostRequest("description/postDescription", json);
+                        System.out.println(id);
+                        BackToMenu(message, "", isAdmin);
+                    } else if (is_newCoctail == 5) {
+                        String name = message.getText();
+                        String json = "{\"name\":\"" + name + "\",\"des_id\":\"" + id + "\"}";
+                        is_newCoctail = 6;
+                        req.doPostRequest("coctails/postCoctail",json);
+                        BackToMenu(message, "", isAdmin);
+                    } else if (is_delete) {
+                        String coctailName = message.getText();
+                        String encodedText = null;
+                        try {
+                            encodedText = URLEncoder.encode(coctailName, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        req.doDeleteRequset("coctails/deleteCoctail/"+ encodedText);
+                        BackToMenu(message, "удаление",isAdmin);
                     } else {
                         BackToMenu(message, "Вы ввели неправильные данные, попробуйте еще раз",isAdmin);
                     }
@@ -66,7 +108,6 @@ public class TgBot extends TelegramLongPollingBot {
 
     public void getAllCoctails(String jsonCoctails, Message message) {
 
-        is_selected = true;
         String[] items = jsonCoctails.split(",");
 
         // Создаем список для хранения значений
@@ -135,6 +176,7 @@ public class TgBot extends TelegramLongPollingBot {
 
         if (isAdmin) {
             keyboardSecondRow.add("Добавить коктейль");
+            keyboardSecondRow.add("Удалить коктейль");
 //            keyboardSecondRow.add("Закрыть возможность записи");
         }
 
@@ -149,9 +191,22 @@ public class TgBot extends TelegramLongPollingBot {
         sendMessage.setReplyToMessageId(message.getMessageId());
 
         if (text == "Выбрать коктейль") {
+            is_selected = true;
             getAllCoctails(req.doGetRequset("coctails/getCoctails"), message);
-        }
-        else if (is_selected && text == "Посмотреть историю") {
+        } else if (text == "Добавить коктейль" && isAdmin) {
+            sendMessage.setText("Напишите рецепт коктейля");
+            is_newCoctail = 1;
+//            newCoctail();
+        } else if (is_newCoctail == 2) {
+            sendMessage.setText("Введите историю создания коктейля");
+            is_newCoctail = 3;
+        } else if (is_newCoctail == 4) {
+            sendMessage.setText("Введите название коктейля");
+            is_newCoctail = 5;
+        } else if (is_newCoctail == 6) {
+            sendMessage.setText("Коктейль добавлен!");
+            is_newCoctail = 0;
+        } else if (is_selected && text == "Посмотреть историю") {
             is_selected = false;
             String encodedText = null;
             try {
@@ -178,6 +233,12 @@ public class TgBot extends TelegramLongPollingBot {
             keyboardFirstRow.add("Посмотреть историю");
             keyboardFirstRow.add("Посмотреть рецепт");
             keyboard.add(keyboardFirstRow);
+        } else if (text == "Удалить коктейль") {
+            getAllCoctails(req.doGetRequset("coctails/getCoctails"), message);
+            is_delete = true;
+        } else if (text == "удаление") {
+            sendMessage.setText("Этот коктейль удален");
+            is_delete = false;
         } else {
             sendMessage.setText("Такой кнопки не существует");
         }
@@ -187,7 +248,6 @@ public class TgBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
 
 
     @Override
