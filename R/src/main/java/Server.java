@@ -1,7 +1,5 @@
 //import Handlers.*;
-import Handlers.GetCoctailsHandler;
-import Handlers.GetHistoryHandler;
-import Handlers.GetRecipeHandler;
+import Handlers.*;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -18,6 +16,8 @@ public class Server {
             httpServer.createContext("/coctails/getCoctails", new GetCoctailsHandler());
             httpServer.createContext("/coctails/getRecipe", new GetRecipeHandler());
             httpServer.createContext("/coctails/getHistory", new GetHistoryHandler());
+            httpServer.createContext("/user/postUser", new postUserHandler());
+            httpServer.createContext("/user/getUser", new getUserHandler());
             httpServer.start();
         } catch (IOException e) {
             throw new RuntimeException(e);

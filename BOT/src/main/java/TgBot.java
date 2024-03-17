@@ -25,13 +25,17 @@ public class TgBot extends TelegramLongPollingBot {
 
     HttpRequsts req = new HttpRequsts();
     boolean is_selected = false;
+    private static boolean isAdmin = false;
     String coctail_now = "";
+    private static final String adminName = "Tashbash59";
 
     @Override
     public void onUpdateReceived(Update update) {
         String username =  update.getMessage().getFrom().getUserName();
+        req.doPostRequest("user/postUser","{\"user_name\":\"" + username + "\",\"is_admin\":false}");
+//        setUser(username);
+        isAdmin = username.equals(adminName);
         Message message = update.getMessage();
-        boolean isAdmin = false;
         //Tashbash59
         // получаем записи у пользователя и вставляем их в массивы
 
@@ -130,7 +134,7 @@ public class TgBot extends TelegramLongPollingBot {
 
 
         if (isAdmin) {
-            keyboardSecondRow.add("Удалить запись у пользователя");
+            keyboardSecondRow.add("Добавить коктейль");
 //            keyboardSecondRow.add("Закрыть возможность записи");
         }
 

@@ -13,6 +13,6 @@
 
         <mapping class="Entity.Coctails"/>
         <mapping class="Entity.Description"/>
-<!--        <mapping class="Entity.Orders_time"/>-->
+        <mapping class="Entity.Users"/>
     </session-factory>
 </hibernate-configuration>
